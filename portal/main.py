@@ -51,5 +51,14 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
 
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'GET':
+        return render_template('contact.html')
+    else:
+        title, content = request.form['title'], request.form['content']
+        database.reportFromPortal(session['user']['_id'], title, content)
+        return redirect(url_for('dashboard'))
+
 if __name__ == '__main__':
     app.run(debug=True)

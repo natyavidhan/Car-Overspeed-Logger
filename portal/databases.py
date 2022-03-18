@@ -73,3 +73,19 @@ class Database:
             return []
         else:
             return user['portal-reports']
+    
+    def reportFromPortal(self, user_id, title, content):
+        user = self.getUser(ID=user_id)
+        if user is None:
+            return False
+        else:
+            id_ = str(uuid.uuid4())
+            self.portal_reports.insert_one({
+                '_id': id_,
+                'user': user_id,
+                'title': title,
+                'content': content,
+                'created': datetime.now(),
+            })
+            self.users.update_one({'_id': user_id}, {'$push': {'portal-reports': id_}})
+            return True
