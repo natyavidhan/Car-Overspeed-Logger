@@ -45,7 +45,9 @@ class Database:
                 'password': password,
                 'name': name,
                 'role': role,
-                'created': datetime.now()
+                'created': datetime.now(),
+                'car-reports': [],
+                'portal-reports': [],
             })
             return True
     
@@ -57,3 +59,17 @@ class Database:
             if bcrypt.checkpw(password.encode('utf-8'), user['password']):
                 return user
             return False
+        
+    def getUserReports(self, user_id):
+        user = self.getUser(ID=user_id)
+        if user is None:
+            return []
+        else:
+            return user['car-reports']
+        
+    def getUserPortalReports(self, user_id):
+        user = self.getUser(ID=user_id)
+        if user is None:
+            return []
+        else:
+            return user['portal-reports']
