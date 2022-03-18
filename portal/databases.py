@@ -49,4 +49,9 @@ class Database:
             })
             return True
     
-    
+    def authenticate(self, email, password):
+        user = self.getUser(email=email)
+        if user is None:
+            return False
+        else:
+            return bcrypt.checkpw(password.encode('utf-8'), user['password'])
