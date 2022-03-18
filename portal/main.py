@@ -37,6 +37,12 @@ def register():
             session['user'] = user
             return redirect(url_for('dashboard'))
         return render_template('register.html', error='Invalid email or password')
+    
+@app.route('/dashboard')
+def dashboard():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    return render_template('dashboard.html', user=session['user'])
 
 if __name__ == '__main__':
     app.run(debug=True)
