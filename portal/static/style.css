@@ -2,3 +2,7 @@ body{
     background-color: #1d1d1d !important;
     color: white !important;
 }
+a, a:visited, a:hover, a:active{
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
