@@ -54,4 +54,4 @@ class Database:
         if user is None:
             return False
         else:
-            return bcrypt.checkpw(password.encode('utf-8'), user['password'])
+            return bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8'))
