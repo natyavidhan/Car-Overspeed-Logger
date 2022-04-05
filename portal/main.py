@@ -20,25 +20,21 @@ def index():
 def login():
     if request.method == 'GET':
         return render_template('login.html', error=None)
-    else:
-        email, password = request.form['email'], request.form['password']
-        user = database.authenticate(email, password)
-        if user:
-            session['user'] = user
-            return redirect(url_for('dashboard'))
-        return render_template('login.html', error='Invalid email or password')
+    email, password = request.form['email'], request.form['password']
+    if user := database.authenticate(email, password):
+        session['user'] = user
+        return redirect(url_for('dashboard'))
+    return render_template('login.html', error='Invalid email or password')
     
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
         return render_template('register.html', error=None)
-    else:
-        email, password, name = request.form['email'], request.form['password'], request.form['name']
-        user = database.registerUser(email, password, name)
-        if user:
-            session['user'] = user
-            return redirect(url_for('dashboard'))
-        return render_template('register.html', error='Invalid email or password')
+    email, password, name = request.form['email'], request.form['password'], request.form['name']
+    if user := database.registerUser(email, password, name):
+        session['user'] = user
+        return redirect(url_for('dashboard'))
+    return render_template('register.html', error='Invalid email or password')
     
 @app.route('/dashboard')
 def dashboard():
@@ -55,10 +51,9 @@ def logout():
 def contact():
     if request.method == 'GET':
         return render_template('contact.html')
-    else:
-        title, content = request.form['title'], request.form['content']
-        database.reportFromPortal(session['user']['_id'], title, content)
-        return redirect(url_for('dashboard'))
+    title, content = request.form['title'], request.form['content']
+    database.reportFromPortal(session['user']['_id'], title, content)
+    return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
     app.run(debug=True)

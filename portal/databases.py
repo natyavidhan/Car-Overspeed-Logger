@@ -32,60 +32,56 @@ class Database:
             return None
     
     def registerUser(self, email, password, name, role='user'):
-        if self.userExist(email=email):
+        if (
+            self.userExist(email=email)
+            or not self.userExist(email=email)
+            and re.match(
+                r'^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$', email
+            )
+            is None
+        ):
             return False
-        elif re.match(r'^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$', email) is None:
-            return False
-        else:
-            salt = bcrypt.gensalt()
-            password = bcrypt.hashpw(password.encode('utf-8'), salt)
-            self.users.insert_one({
-                '_id': str(uuid.uuid4()),
-                'email': email,
-                'password': password,
-                'name': name,
-                'role': role,
-                'created': datetime.now(),
-                'car-reports': [],
-                'portal-reports': [],
-            })
-            return True
+        salt = bcrypt.gensalt()
+        password = bcrypt.hashpw(password.encode('utf-8'), salt)
+        self.users.insert_one({
+            '_id': str(uuid.uuid4()),
+            'email': email,
+            'password': password,
+            'name': name,
+            'role': role,
+            'created': datetime.now(),
+            'car-reports': [],
+            'portal-reports': [],
+        })
+        return True
     
     def authenticate(self, email, password):
         user = self.getUser(email=email)
-        if user is None:
-            return False
-        else:
-            if bcrypt.checkpw(password.encode('utf-8'), user['password']):
-                return user
-            return False
+        if user is not None and bcrypt.checkpw(
+            password.encode('utf-8'), user['password']
+        ):
+            return user
+        return False
         
     def getUserReports(self, user_id):
         user = self.getUser(ID=user_id)
-        if user is None:
-            return []
-        else:
-            return user['car-reports']
+        return [] if user is None else user['car-reports']
         
     def getUserPortalReports(self, user_id):
         user = self.getUser(ID=user_id)
-        if user is None:
-            return []
-        else:
-            return user['portal-reports']
+        return [] if user is None else user['portal-reports']
     
     def reportFromPortal(self, user_id, title, content):
         user = self.getUser(ID=user_id)
         if user is None:
             return False
-        else:
-            id_ = str(uuid.uuid4())
-            self.portal_reports.insert_one({
-                '_id': id_,
-                'user': user_id,
-                'title': title,
-                'content': content,
-                'created': datetime.now(),
-            })
-            self.users.update_one({'_id': user_id}, {'$push': {'portal-reports': id_}})
-            return True
+        id_ = str(uuid.uuid4())
+        self.portal_reports.insert_one({
+            '_id': id_,
+            'user': user_id,
+            'title': title,
+            'content': content,
+            'created': datetime.now(),
+        })
+        self.users.update_one({'_id': user_id}, {'$push': {'portal-reports': id_}})
+        return True
